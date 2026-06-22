@@ -3,7 +3,6 @@ import path from "path";
 import dns from "dns";
 import dotenv from "dotenv";
 import { GoogleGenAI, Type } from "@google/genai";
-import { createServer as createViteServer } from "vite";
 import { databaseQuotes } from "./src/data/quotes.ts"; // Standard ESM imports can use relative or tsx paths
 
 dotenv.config();
@@ -11,7 +10,7 @@ dotenv.config();
 // Fix local host resolution order for modern Node runtimes
 dns.setDefaultResultOrder("ipv4first");
 
-const app = express();
+export const app = express();
 const PORT = 3000;
 
 app.use(express.json());
@@ -486,6 +485,7 @@ All responses must be fully in Chinese (Simplified).`;
 // ----------------------------------------------------
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
@@ -505,4 +505,6 @@ async function startServer() {
   });
 }
 
-startServer();
+if (!process.env.VERCEL) {
+  startServer();
+}
