@@ -1,0 +1,6 @@
+{
+  "name": "Musical Quote Finder",
+  "description": "音乐剧歌词与台词智能检索平台 — 提供经典精准关键词检索、语义情绪检索、以及深度的AI场景冲突匹配检索。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
