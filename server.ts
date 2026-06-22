@@ -15,20 +15,30 @@ const PORT = 3000;
 
 app.use(express.json());
 
-// Initialize Gemini Client
-const apiKey = process.env.GEMINI_API_KEY || "";
-const ai = new GoogleGenAI({
-  apiKey: apiKey,
-  httpOptions: {
-    headers: {
-      "User-Agent": "aistudio-build",
-    },
-  },
-});
+// Initialize Gemini Client Lazily to prevent module load-time crashes
+let aiClient: GoogleGenAI | null = null;
+const getAiClient = (): GoogleGenAI => {
+  if (!aiClient) {
+    const key = process.env.GEMINI_API_KEY || "";
+    if (!key) {
+      throw new Error("GEMINI_API_KEY runtime variable is missing");
+    }
+    aiClient = new GoogleGenAI({
+      apiKey: key,
+      httpOptions: {
+        headers: {
+          "User-Agent": "aistudio-build",
+        },
+      },
+    });
+  }
+  return aiClient;
+};
 
-// Middleware to check if Gemini is properly configured
+// Middleware to check if Gemini is properly configured at runtime
 const isGeminiEnabled = () => {
-  return apiKey && apiKey !== "MY_GEMINI_API_KEY";
+  const key = process.env.GEMINI_API_KEY;
+  return typeof key === "string" && key.trim() !== "" && key !== "MY_GEMINI_API_KEY";
 };
 
 // Helper to escape regex special characters
@@ -227,7 +237,7 @@ Instructions:
 3. For each match, provide highly tailored explanations (including 'matchingReason' and specific bilingually informative parameters: emotionAnalysis, sceneAnalysis, tensionAnalysis, themeAnalysis) in Chinese.
 4. Return only the top matches (maximum 8 results) sorted by score descending.`;
 
-    const response = await ai.models.generateContent({
+    const response = await getAiClient().models.generateContent({
       model: "gemini-3.5-flash",
       contents: systemPrompt,
       config: {
@@ -413,7 +423,7 @@ Instructions:
 You must provide the analysis steps under 'analysisSteps' and the matched quotes under 'matches'.
 All responses must be fully in Chinese (Simplified).`;
 
-    const response = await ai.models.generateContent({
+    const response = await getAiClient().models.generateContent({
       model: "gemini-3.5-flash",
       contents: systemPrompt,
       config: {

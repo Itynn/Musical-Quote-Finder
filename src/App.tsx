@@ -528,7 +528,7 @@ export default function App() {
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
                     <input
                       type="text"
-                      placeholder="搜索中英歌词或歌名，如 'My shot' 或 '我曾有一梦'..."
+                      placeholder="请输入关键词"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="w-full text-sm sm:text-base pl-12 pr-28 py-3.5 rounded-xl bg-slate-950 border border-slate-850 text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500/20 transition-all shadow-inner"
@@ -638,8 +638,7 @@ export default function App() {
                     <div className="relative">
                       <textarea
                         rows={3}
-                        placeholder="描述戏剧词句所探讨的主题内核、人物宿命意义、或深层的生命探索冲突。
-例如：'表达要打破世俗的枷锁，在寒冷孤独的境遇里重燃对自由以及尊严的渴望...'"
+                        placeholder="描述你想用歌词表现的复杂情感或场景"
                         value={sceneInput}
                         onChange={(e) => setSceneInput(e.target.value)}
                         className="w-full text-xs sm:text-sm p-4 rounded-xl bg-slate-950 border border-slate-850 text-slate-100 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-505/20 transition-all shadow-inner leading-relaxed"
@@ -700,29 +699,20 @@ export default function App() {
                 <h3 className="text-lg font-bold text-white">我的收藏歌词柜</h3>
               </div>
               <p className="text-xs text-slate-400 mt-1">
-                本地安全保存，随时翻阅歌唱片段与其戏剧学分析。
+                本地安全存储您的戏剧珍藏歌词，换浏览器或清除缓存时可能丢失。
               </p>
             </div>
-            {favorites.length > 0 && (
-              <button
-                onClick={() => {
-                  if (confirm("确定要清空全部收藏的歌词吗？")) {
-                    setFavorites([]);
-                    localStorage.removeItem("musical_quotes_favorites");
-                  }
-                }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-red-500/30 text-red-400 bg-red-500/5 hover:bg-red-500/15 text-xs font-semibold cursor-pointer transition-all"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>清空收藏</span>
-              </button>
-            )}
+            <button
+              onClick={() => setShowOnlyFavorites(false)}
+              className="px-4 py-2 text-xs font-semibold bg-slate-950 border border-slate-850 rounded-xl hover:text-white hover:bg-slate-800 transition-all cursor-pointer"
+            >
+              返回检索
+            </button>
           </div>
         )}
 
-        {/* 4. Active Error or Status Messaging Bar */}
         {errorMessage && (
-          <div className="p-4 bg-red-500/5 text-red-400 text-xs sm:text-sm rounded-xl border border-red-500/20 flex gap-2.5 items-center">
+          <div className="flex items-center gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-xs sm:text-sm text-red-200">
             <AlertCircle className="w-5 h-5 shrink-0 text-red-400" />
             <div className="flex-1 font-medium">{errorMessage}</div>
             <button onClick={() => setErrorMessage("")} className="text-slate-400 hover:text-white px-2 cursor-pointer">
@@ -736,7 +726,7 @@ export default function App() {
           <div className="py-24 flex flex-col items-center justify-center gap-4 bg-slate-900/10 rounded-2xl border border-slate-900 border-dashed">
             <div className="relative">
               <div className="w-12 h-12 rounded-full border-4 border-amber-500/10 border-t-amber-500 animate-spin" />
-              <Sparkles className="w-5 h-5 text-amber-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-bounce" />
+              <Sparkles className="w-5 h-5 text-amber-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-bounce animate-pulse" />
             </div>
             <div className="text-center space-y-1.5">
               <p className="text-sm font-bold text-white tracking-wider animate-pulse">
@@ -752,144 +742,6 @@ export default function App() {
         {/* 5. Main Grid Results Showcase Area */}
         {!isAiLoading && (
           <div className="space-y-6">
-
-            {activeTab === "scene" && aiAnalysisSteps && (
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4 }}
-                className="bg-slate-900/90 rounded-2xl border border-slate-800 p-5 sm:p-6 shadow-xl space-y-5"
-              >
-                <div className="flex items-center gap-2.5 pb-3 border-b border-slate-800">
-                  <div className="p-1.5 bg-indigo-500/15 text-indigo-400 rounded-lg border border-indigo-500/20">
-                    <Sparkles className="w-5 h-5 text-indigo-450 animate-pulse" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-                      意义匹配：多维戏剧学智能检索报告
-                    </h3>
-                    <p className="text-[11px] text-slate-400">
-                      系统已针对输入内容执行全链路七层剧场语言学剖析与高维精确检索
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {/* Step 1 */}
-                  <div className="bg-slate-950/60 p-4 rounded-xl border border-slate-850 hover:border-indigo-500/30 transition-all space-y-1">
-                    <div className="flex items-center gap-1.5 text-indigo-400 text-xs font-bold">
-                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[10px]">1</span>
-                      <span>第一步：理解用户意图</span>
-                    </div>
-                    <p className="text-xs text-slate-300 leading-relaxed">
-                      {aiAnalysisSteps.intent}
-                    </p>
-                  </div>
-
-                  {/* Step 2 */}
-                  <div className="bg-slate-950/60 p-4 rounded-xl border border-slate-850 hover:border-emerald-500/30 transition-all space-y-1">
-                    <div className="flex items-center gap-1.5 text-emerald-400 text-xs font-bold">
-                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px]">2</span>
-                      <span>第二步：提取主题</span>
-                    </div>
-                    <p className="text-xs text-slate-300 leading-relaxed">
-                      {aiAnalysisSteps.theme}
-                    </p>
-                  </div>
-
-                  {/* Step 3 */}
-                  <div className="bg-slate-950/60 p-4 rounded-xl border border-slate-850 hover:border-amber-500/30 transition-all space-y-1">
-                    <div className="flex items-center gap-1.5 text-amber-400 text-xs font-bold">
-                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px]">3</span>
-                      <span>第三步：提取情绪</span>
-                    </div>
-                    <p className="text-xs text-slate-300 leading-relaxed">
-                      {aiAnalysisSteps.emotion}
-                    </p>
-                  </div>
-
-                  {/* Step 4 */}
-                  <div className="bg-slate-950/60 p-4 rounded-xl border border-slate-850 hover:border-rose-500/30 transition-all space-y-1">
-                    <div className="flex items-center gap-1.5 text-rose-450 text-xs font-bold">
-                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-rose-500/10 border border-rose-500/20 text-[10px]">4</span>
-                      <span>第四步：提取人物关系</span>
-                    </div>
-                    <p className="text-xs text-slate-300 leading-relaxed">
-                      {aiAnalysisSteps.relationship}
-                    </p>
-                  </div>
-
-                  {/* Step 5 */}
-                  <div className="bg-slate-950/60 p-4 rounded-xl border border-slate-850 hover:border-purple-500/30 transition-all space-y-1">
-                    <div className="flex items-center gap-1.5 text-purple-400 text-xs font-bold">
-                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-purple-500/10 border border-purple-500/20 text-[10px]">5</span>
-                      <span>第五步：提取场景</span>
-                    </div>
-                    <p className="text-xs text-slate-300 leading-relaxed">
-                      {aiAnalysisSteps.scene}
-                    </p>
-                  </div>
-
-                  {/* Step 6 */}
-                  <div className="bg-slate-950/60 p-4 rounded-xl border border-slate-850 hover:border-cyan-500/30 transition-all space-y-1">
-                    <div className="flex items-center gap-1.5 text-cyan-400 text-xs font-bold">
-                      <span className="flex items-center justify-center w-5 h-5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-[10px]">6</span>
-                      <span>第六步：生成搜索标签</span>
-                    </div>
-                    <div className="pt-1.5 flex flex-wrap gap-1">
-                      {aiAnalysisSteps.tags ? aiAnalysisSteps.tags.split(",").map((t: string) => (
-                        <span key={t} className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-[10px] text-cyan-300 font-mono">
-                          #{t.trim()}
-                        </span>
-                      )) : "无"}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Step 7 (Large Box) */}
-                <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 hover:border-indigo-500/20 transition-all space-y-2">
-                  <div className="flex items-center gap-1.5 text-slate-200 text-xs font-bold border-b border-slate-800 pb-2">
-                    <Layers className="w-4 h-4 text-indigo-400" />
-                    <span>第七步：执行三层检索系统架构</span>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1 text-slate-300">
-                    <div className="p-3 bg-slate-900/30 rounded-lg border border-slate-850/60 space-y-1.5">
-                      <div className="flex items-center gap-1.5 text-slate-100 text-[11px] font-bold">
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-                        <span>1. 精准关键词搜索</span>
-                      </div>
-                      <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
-                        文本字符串逆向分词与关键概念字词词库匹配度精准对齐，检索直接提及或同义转述的剧场台词。
-                      </p>
-                    </div>
-                    <div className="p-3 bg-slate-900/30 rounded-lg border border-slate-850/60 space-y-1.5">
-                      <div className="flex items-center gap-1.5 text-slate-100 text-[11px] font-bold">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                        <span>2. 向量语义搜索</span>
-                      </div>
-                      <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
-                        将场景意境融入预设情感亲和向量坐标系空间，利用余弦加权距离捕捉隐喻型和情绪呼应型。
-                      </p>
-                    </div>
-                    <div className="p-3 bg-slate-900/30 rounded-lg border border-slate-850/60 space-y-1.5">
-                      <div className="flex items-center gap-1.5 text-slate-100 text-[11px] font-bold">
-                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
-                        <span>3. AI推荐搜索</span>
-                      </div>
-                      <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
-                        大语言模型基于原著背景和人物宿命主旨，从歌词深层表达、思想深度方面融合推荐和评测。
-                      </p>
-                    </div>
-                  </div>
-                  <div className="mt-2.5 p-3 rounded-lg bg-indigo-500/5 border border-indigo-500/10 text-xs text-slate-200 leading-relaxed">
-                    <strong className="text-indigo-400 block mb-0.5">📊 当下情境智能三层检索匹配状态摘要：</strong>
-                    <div className="whitespace-pre-line text-[11px] text-slate-300 font-sans leading-relaxed">
-                      {aiAnalysisSteps.retrievalSummary}
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            )}
             
             {/* Results Title Count Panel */}
             <div className="flex justify-between items-center bg-slate-950 px-2 py-1">
